@@ -4,16 +4,27 @@
 import sys
 import traceback
 import time
-from enum import Enum
 
-class PieceMoveHelper(object):
+class MoveType(object):
+    """Enum type for movement type.
+    """
+    DIAGONAL, LINEAR = range(2)
+
+class DiagonalMoves(object):
+    NE, NW, SE, SW = range(4)
+
+class LinearMoves(object):
+    UP, DOWN, LEFT, RIGHT = range(4)
+
+class Helper(object):
     """Chess Piece Move Helper
 
     """
     cols = 'abcdefgh'
-    MOVE_TYPE = Enum('DIAGONAL', 'LINEAR')
-    DIAGONAL_MOVES = Enum('NE', 'NW', 'SE', 'SW')
-    LINEAR_MOVES = Enum('ASC', 'DESC')
+    MOVE_TYPE = MoveType
+    DIAGONAL_MOVES = DiagonalMoves
+    LINEAR_MOVES = LinearMoves
+
     @staticmethod
     def numeric_position(tile=None):
         print 'numeric_position: tile: {}'.format(tile)
@@ -21,7 +32,7 @@ class PieceMoveHelper(object):
             return None
         try:
             y = int(tile[1]) - 1
-            x = ChessPiece.cols.find(tile[0])
+            x = Helper.cols.find(tile[0])
             print 'numeric_position: (x: {}, y: {})'.format(x, y)
             if y > 7 or y < 0 or x < 0:
                 return None
@@ -33,16 +44,16 @@ class PieceMoveHelper(object):
 
     @staticmethod
     def is_position_valid(position):
-        return True if PieceMoveHelper.numeric_position(position) is not None else False
+        return True if Helper.numeric_position(position) is not None else False
 
     @staticmethod
     def algebraic_to_numeric(tile=None):
-        print 'PieceMoveHelper.algebraic_to_numeric: tile: {}'.format(tile)
+        print 'algebraic_to_numeric: tile: {}'.format(tile)
         if tile is None:
             return None
         try:
             y = int(tile[1]) - 1
-            x = PieceMoveHelper.cols.find(tile[0])
+            x = Helper.cols.find(tile[0])
             print 'x: {}, y: {}'.format(x, y)
             if y > 7 or y < 0 or x < 0:
                 return None
@@ -54,7 +65,7 @@ class PieceMoveHelper(object):
 
     @staticmethod
     def numeric_to_algebraic(coord):
-        print 'PieceMoveHelper.numeric_to_algebraic: tile: {}'.format(tile)
+        print 'numeric_to_algebraic: tile: {}'.format(coord)
         if coord is None:
             return None
         try:
@@ -62,7 +73,7 @@ class PieceMoveHelper(object):
             if y > 7 or y < 0 or x < 0:
                 return None
             row = int(y) + 1
-            col = PieceMoveHelper.cols.index(x)
+            col = Helper.cols.index(x)
             position = '{}{}'.format(col, row)
             print 'position: {}'.format(position)
             return position
@@ -72,15 +83,47 @@ class PieceMoveHelper(object):
         return None
 
     @staticmethod
-    def vertical_moves(position, distance=None):
-        return None
-
-    @staticmethod
-    def horizontal_moves(position, distance=None):
-        return None
-
-    @staticmethod
-    def get_next_moves(position, moveType):
+    def get_next_moves(position, move_type, move_dir, distance=None):
+        if not Helper.is_position_valid(position):
+            return None
+        x, y = Helper.algebraic_to_numeric(position)
+        moves = []
+        distance = 7 if distance is None else distance
+        while distance > 0:
+            next_pos = None
+            if move_type == Helper.MOVE_TYPE.DIAGONAL:
+                if move_dir == Helper.DIAGONAL_MOVES.NW:
+                    x, y = (x-1, y-1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                elif move_dir == Helper.DIAGONAL_MOVES.NE:
+                    x, y = (x+1, y-1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                elif move_dir == Helper.DIAGONAL_MOVES.SW:
+                    x, y = (x+1, y+1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                elif move_dir == Helper.DIAGONAL_MOVES.SE:
+                    x, y = (x-1, y+1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+            elif move_type == Helper.MOVE_TYPE.LINEAR:
+                if move_dir == Helper.LINEAR_MOVES.UP:
+                    x, y = (x, y-1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                if move_dir == Helper.LINEAR_MOVES.DOWN:
+                    x, y = (x, y+1)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                if move_dir == Helper.LINEAR_MOVES.LEFT:
+                    x, y = (x-1, y)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+                if move_dir == Helper.LINEAR_MOVES.RIGHT:
+                    x, y = (x+1, y)
+                    next_pos = Helper.numeric_to_algebraic((x, y))
+            if next_pos is not None and Helper.is_position_valid(next_pos):
+                distance -= 1
+                moves.append(next_pos)
+            else:
+                distance = 0
+        if len(moves) >= 1:
+            return moves
         return None
 
     @staticmethod
@@ -94,12 +137,12 @@ class PieceMoveHelper(object):
         if left_moves > 0:
             for i in range(1, down_moves):
                 print 'left: down: i: {}, moves: {}'.format(i, left_moves)
-                move = PieceMoveHelper.numeric_to_algebraic(x, (left + i))
+                move = Helper.numeric_to_algebraic(x, (left + i))
                 moves.append(move)
         if right_moves > 0:
             for i in range(1, up_moves):
                 print 'right: up: i: {}, moves: {}'.format(i, right_moves)
-                move = PieceMoveHelper.numeric_to_algebraic(x, (right + i))
+                move = Helper.numeric_to_algebraic(x, (right + i))
                 moves.append(move)
         print 'moves: {}'.format(moves)
         return moves
@@ -126,10 +169,10 @@ class ChessPiece(object):
         self.prefix = ChessPiece.prefix
 
     def algebraic_to_numeric(self, tile=None):
-        return PieceMoveHelper.algebraic_to_numeric(tile)
+        return Helper.algebraic_to_numeric(tile)
 
     def is_legal_move(self, position):
-        return True if PieceMoveHelper.is_position_valid(position) is not None else False
+        return True if Helper.is_position_valid(position) is not None else False
 
     def move(self, position):
         if not self.is_legal_move(position):
