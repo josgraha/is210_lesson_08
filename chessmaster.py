@@ -5,28 +5,45 @@ import sys
 import traceback
 import time
 
+
 class MoveType(object):
     """Enum type for movement type.
+
     """
-    DIAGONAL, LINEAR = range(2)
+    diagonal, linear = range(2)
+
 
 class DiagonalMoves(object):
-    NE, NW, SE, SW = range(4)
+    """Enum type.
+
+    """
+    ne, nw, se, sw = range(4)
+
 
 class LinearMoves(object):
-    UP, DOWN, LEFT, RIGHT = range(4)
+    """Enum type.
+
+    """
+    up, down, left, right = range(4)
+
 
 class Helper(object):
     """Chess Piece Move Helper
 
     """
     cols = 'abcdefgh'
-    MOVE_TYPE = MoveType
-    DIAGONAL_MOVES = DiagonalMoves
-    LINEAR_MOVES = LinearMoves
+    move_type = MoveType
+    diagonal_moves = DiagonalMoves
+    linear_moves = LinearMoves
 
+    # noinspection PyBroadException
     @staticmethod
     def numeric_position(tile=None):
+        """Returns the numeric coordinate for the tile.
+
+        :param tile:
+        :return:
+        """
         # print 'numeric_position: tile: {}'.format(tile)
         if tile is None:
             return None
@@ -43,8 +60,14 @@ class Helper(object):
 
     @staticmethod
     def is_position_valid(position):
+        """Returns true if position is valid.
+
+        :param position:
+        :return:
+        """
         return True if Helper.numeric_position(position) is not None else False
 
+    # noinspection PyBroadException
     @staticmethod
     def algebraic_to_numeric(tile=None):
         # print 'algebraic_to_numeric: tile: {}'.format(tile)
@@ -63,6 +86,10 @@ class Helper(object):
 
     @staticmethod
     def coord_to_algebraic(coord):
+        """
+
+        :rtype : string
+        """
         # print 'coord_to_algebraic: coord: {}'.format(coord)
         if coord is None:
             return None
@@ -71,6 +98,12 @@ class Helper(object):
 
     @staticmethod
     def numeric_to_algebraic(x, y):
+        """
+
+        :param x:
+        :param y:
+        :return: string
+        """
         # print 'numeric_to_algebraic: x: {}, y: {}'.format(x, y)
         if x is None or y is None:
             return None
@@ -88,6 +121,14 @@ class Helper(object):
 
     @staticmethod
     def get_moves(position, move_type, move_dir, distance=None):
+        """
+
+        :param position:
+        :param move_type:
+        :param move_dir:
+        :param distance:
+        :return:
+        """
         if not Helper.is_position_valid(position):
             return None
         x, y = Helper.algebraic_to_numeric(position)
@@ -109,51 +150,84 @@ class Helper(object):
 
     @staticmethod
     def get_coord_for_move(x, y, move_type, move_dir):
+        """
+
+        :param x:
+        :param y:
+        :param move_type:
+        :param move_dir:
+        :return:
+        """
         # print 'get_coord_for_move: x: {}, y: {}'.format(x, y)
         if x is None or y is None or move_type is None or move_dir is None:
             return None
         coord = None
-        if move_type == Helper.MOVE_TYPE.DIAGONAL:
-            if move_dir == Helper.DIAGONAL_MOVES.SW:
+        if move_type == Helper.move_type.diagonal:
+            if move_dir == Helper.diagonal_moves.sw:
                 coord = x - 1, y - 1
-            elif move_dir == Helper.DIAGONAL_MOVES.SE:
+            elif move_dir == Helper.diagonal_moves.se:
                 coord = x + 1, y - 1
-            elif move_dir == Helper.DIAGONAL_MOVES.NE:
+            elif move_dir == Helper.diagonal_moves.ne:
                 coord = x + 1, y + 1
-            elif move_dir == Helper.DIAGONAL_MOVES.NW:
+            elif move_dir == Helper.diagonal_moves.nw:
                 coord = x - 1, y + 1
-        elif move_type == Helper.MOVE_TYPE.LINEAR:
-            if move_dir == Helper.LINEAR_MOVES.DOWN:
+        elif move_type == Helper.move_type.linear:
+            if move_dir == Helper.linear_moves.down:
                 coord = x, y - 1
-            elif move_dir == Helper.LINEAR_MOVES.UP:
+            elif move_dir == Helper.linear_moves.up:
                 coord = x, y + 1
-            elif move_dir == Helper.LINEAR_MOVES.LEFT:
+            elif move_dir == Helper.linear_moves.left:
                 coord = x - 1, y
-            elif move_dir == Helper.LINEAR_MOVES.RIGHT:
+            elif move_dir == Helper.linear_moves.right:
                 coord = x + 1, y
         return coord
 
     @staticmethod
     def get_vertical_moves(pos, distance=None):
+        """
+
+        :param pos:
+        :param distance:
+        :return:
+        """
         return Helper.get_linear_axis_moves(pos, distance, True)
 
     @staticmethod
     def get_horizontal_moves(pos, distance=None):
+        """
+
+        :param pos:
+        :param distance:
+        :return:
+        """
         return Helper.get_linear_axis_moves(pos, distance, False)
 
     @staticmethod
     def get_linear_axis_moves(pos, distance=None, is_vertical=False):
+        """
+
+        :param pos:
+        :param distance:
+        :param is_vertical:
+        :return:
+        """
         if pos is None or not Helper.is_position_valid(pos):
             return None
         move_dirs = None
         if not is_vertical:
-            move_dirs = [LinearMoves.LEFT, LinearMoves.RIGHT]
+            move_dirs = [LinearMoves.left, LinearMoves.right]
         else:
-            move_dirs = [LinearMoves.UP, LinearMoves.DOWN]
-        return Helper.get_moves_for_dirs(pos, MoveType.LINEAR, move_dirs, distance)
+            move_dirs = [LinearMoves.up, LinearMoves.down]
+        return Helper.get_moves_for_dirs(pos, MoveType.linear, move_dirs, distance)
 
     @staticmethod
     def get_all_moves(pos, distance=None):
+        """
+
+        :param pos:
+        :param distance:
+        :return:
+        """
         if pos is None or not Helper.is_position_valid(pos):
             return None
         moves = []
@@ -167,23 +241,42 @@ class Helper(object):
             return moves
         return None
 
-
     @staticmethod
     def get_linear_moves(pos, distance=None):
+        """
+
+        :param pos:
+        :param distance:
+        :return:
+        """
         if pos is None or not Helper.is_position_valid(pos):
             return None
-        move_dirs = [LinearMoves.UP, LinearMoves.DOWN, LinearMoves.LEFT, LinearMoves.RIGHT]
-        return Helper.get_moves_for_dirs(pos, MoveType.LINEAR, move_dirs, distance)
+        move_dirs = [LinearMoves.up, LinearMoves.down, LinearMoves.left, LinearMoves.right]
+        return Helper.get_moves_for_dirs(pos, MoveType.linear, move_dirs, distance)
 
     @staticmethod
     def get_diagonal_moves(pos, distance=None):
+        """
+
+        :param pos:
+        :param distance:
+        :return:
+        """
         if pos is None or not Helper.is_position_valid(pos):
             return None
-        move_dirs = [DiagonalMoves.NE, DiagonalMoves.NW, DiagonalMoves.SE, DiagonalMoves.SW]
-        return Helper.get_moves_for_dirs(pos, MoveType.DIAGONAL, move_dirs, distance)
+        move_dirs = [DiagonalMoves.ne, DiagonalMoves.nw, DiagonalMoves.se, DiagonalMoves.sw]
+        return Helper.get_moves_for_dirs(pos, MoveType.diagonal, move_dirs, distance)
 
     @staticmethod
     def get_moves_for_dirs(pos, move_type, move_dirs, distance=None):
+        """
+
+        :param pos:
+        :param move_type:
+        :param move_dirs:
+        :param distance:
+        :return:
+        """
         if move_type is None or move_dirs is None or len(move_dirs) <= 0:
             return None
         moves = []
@@ -209,6 +302,11 @@ class ChessPiece(object):
     prefix = ''
 
     def __init__(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         if not Helper.is_position_valid(position):
             excep = '`{}` is not a legal start position'
             raise ValueError(excep.format(position))
@@ -217,12 +315,27 @@ class ChessPiece(object):
         self.prefix = ChessPiece.prefix
 
     def algebraic_to_numeric(self, tile=None):
+        """
+
+        :param tile:
+        :return:
+        """
         return Helper.algebraic_to_numeric(tile)
 
     def is_legal_move(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         return Helper.is_position_valid(position)
 
     def move(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         if not self.is_legal_move(position):
             return False
         move = ('{}{}'.format(self.prefix, self.position), '{}{}'.format(self.prefix, position), time.time())
@@ -244,10 +357,20 @@ class Rook(ChessPiece):
     prefix = 'R'
 
     def __init__(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         ChessPiece.__init__(self, position)
         self.prefix = Rook.prefix
 
     def is_legal_move(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         if not Helper.is_position_valid(position):
             return False
         legal_moves = Helper.get_linear_moves(self.position)
@@ -269,10 +392,20 @@ class Bishop(ChessPiece):
     prefix = 'B'
 
     def __init__(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         ChessPiece.__init__(self, position)
         self.prefix = Bishop.prefix
 
     def is_legal_move(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         if not Helper.is_position_valid(position):
             return False
         legal_moves = Helper.get_diagonal_moves(self.position)
@@ -294,10 +427,20 @@ class King(ChessPiece):
     prefix = 'K'
 
     def __init__(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         ChessPiece.__init__(self, position)
         self.prefix = King.prefix
 
     def is_legal_move(self, position):
+        """
+
+        :param position:
+        :return:
+        """
         if not Helper.is_position_valid(position):
             return False
         legal_moves = Helper.get_all_moves(self.position, 1)
@@ -318,6 +461,11 @@ class ChessMatch(object):
     """
 
     def __init__(self, pieces=None):
+        """
+
+        :param pieces:
+        :return:
+        """
         self.pieces = None
         self.log = []
         if pieces is None:
@@ -326,6 +474,10 @@ class ChessMatch(object):
             self.pieces = pieces
 
     def reset(self):
+        """
+
+        :return:
+        """
         self.pieces = {
             'Ra1': Rook('a1'),
             'Rh1': Rook('h1'),
@@ -341,6 +493,12 @@ class ChessMatch(object):
         self.log = []
 
     def move(self, piece_key, position):
+        """
+
+        :param piece_key:
+        :param position:
+        :return:
+        """
         piece = self.pieces.pop(piece_key)
         if piece is None:
             return
@@ -352,4 +510,8 @@ class ChessMatch(object):
         self.pieces[piece_key] = piece
 
     def __len__(self):
+        """
+
+        :return:
+        """
         return len(self.log)

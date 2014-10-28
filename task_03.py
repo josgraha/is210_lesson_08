@@ -14,4 +14,7 @@ class Snapshot(object):
        created: holds time.time() timestamp when object was created.
     """
     def __init__(self):
+        """Default constructor.
+
+        """
         self.created = time.time()

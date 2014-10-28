@@ -16,4 +16,8 @@ class Tigerpaw(task_02.Tire):
     __maximum_miles = 750
 
     def __init__(self, miles=0):
-        self.miles = miles
+        """Default constructor
+
+        :param miles:
+        """
+        task_02.Tire(self, miles)

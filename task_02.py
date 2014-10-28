@@ -29,6 +29,10 @@ class Tire(object):
     __maximum_miles = 500
 
     def __init__(self, miles=0):
+        """Default constructor
+
+        :param miles:
+        """
         self.miles = miles
 
     def add_miles(self, miles):
