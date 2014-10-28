@@ -20,4 +20,4 @@ class Tigerpaw(task_02.Tire):
 
         :param miles:
         """
-        task_02.Tire(self, miles)
+        task_02.Tire.__init__(self, miles)
